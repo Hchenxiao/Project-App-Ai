@@ -4,7 +4,8 @@
 			<view class="title">北斗参谋</view>
 			<block slot="right">
 				<view class="city">
-					<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-refresh" size="30"></uni-icons>
+					<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-icoqingchuhuancun"
+						size="25"></uni-icons>
 				</view>
 			</block>
 		</uni-nav-bar>
@@ -17,7 +18,7 @@
 						试一试以下列子
 					</view>
 					<view class="right">
-						<uni-icons custom-prefix="iconfont" type="icon-refresh" size="20"></uni-icons>
+						<uni-icons custom-prefix="iconfont" type="icon-qiehuan" size="20"></uni-icons>
 						<view class="text">
 							换一换
 						</view>
@@ -40,10 +41,10 @@
 			</view>
 		</view>
 		<view class="chat_input">
-			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" auto-focus :show-confirm-bar="false"
-				:cursor-spacing="10" :fixed="true" :adjust-position="false" @focus="focusTextarea" placeholder="有什么想法💡呢！"
-				@blur="blurTextarea" />
-			<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-refresh" size="30"></uni-icons>
+			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" auto-focus
+				:show-confirm-bar="false" :cursor-spacing="10" :fixed="true" :adjust-position="false"
+				@focus="focusTextarea" placeholder="有什么想法💡呢！" @blur="blurTextarea" />
+			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30"></uni-icons>
 		</view>
 	</view>
 </template>
@@ -59,8 +60,8 @@
 			focusTextarea() {
 
 			},
-			blurTextarea(){
-				
+			blurTextarea() {
+
 			}
 		}
 	}
@@ -90,6 +91,16 @@
 	.qingchu {
 		cursor: pointer;
 		opacity: 0.3;
+	}
+
+	.icon-qiehuan {
+		cursor: pointer;
+		vertical-align: middle;
+		margin-right: 4px;
+	}
+	
+	.icon-fasong {
+		cursor: pointer;
 	}
 
 	.chat_content {
@@ -175,11 +186,17 @@
 		background: rgba(196, 3, 17, 0.08);
 		border-radius: 6px;
 		margin-bottom: 16px;
-		padding: 16px 5px;
+		padding: 16px 16px;
 		font-size: 16px;
 		font-weight: 300;
 		color: #333333;
-		line-height: 26px;
+		line-height: 30px;
+		overflow: hidden;//溢出隐藏
+		text-overflow: ellipsis;//省略号
+		display: -webkit-box;//
+		word-break: break-all;
+		-webkit-box-orient: vertical;//设置弹性盒子的子元素的排列方式
+		-webkit-line-clamp: 2;//设置显示文本的行数
 	}
 
 	.chat_input {
@@ -199,6 +216,7 @@
 	.uni-easyinput {
 		width: 89%;
 	}
+
 	.textarea {
 		width: 86%;
 		padding: 10px 8px;
@@ -208,6 +226,7 @@
 		border-radius: 10px;
 		background-color: #FFFFFF;
 	}
+
 	.uni-textarea-placeholder {
 		line-height: 23px;
 	}

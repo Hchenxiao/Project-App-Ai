@@ -60,7 +60,7 @@
             "port" : 9090,
             "https" : false
         },
-        "title" : "RuoYi-App",
+        "title" : "北斗参谋",
         "router" : {
             "mode" : "hash",
             "base" : "./"

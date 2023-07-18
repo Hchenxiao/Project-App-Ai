@@ -2,7 +2,8 @@
 	<view class="content">
 		<uni-row :gutter="0" :span="24">
 			<uni-col :span="12" v-for="(item, index) in dataList" :index="index" :key="index">
-				<view class="card" :style="`background:${item.bgColor}`" @click="goSearch(item)">
+				<view class="card" :style="`background:${item.bgColor};`" @click="goSearch(item)">
+					<image :src="item.bgImg" class="bgImage"></image>
 					<view class="title">{{item.title}}</view>
 					<view class="desc">{{item.desc}}</view>
 					<!-- tips -->
@@ -20,38 +21,48 @@
 				dataList: [{
 						title: '智能问答',
 						desc: '满足您的每个好奇',
-						bgColor: 'linear-gradient(134deg, #EF0032 0%, #BD0017 100%);',
+						pages: '/pages/chatWithAi/smartAi',
+						bgColor: 'linear-gradient(134deg, #F9636E 0%, #E42533 100%);',
+						bgImg: require("@/static/images/bag/first.png"),
 						isOpen: true,
 					},
 					{
 						title: '智慧百科',
 						desc: '解答您的每个疑惑点',
-						bgColor: 'linear-gradient(132deg, #FF9C00 0%, #FFD100 100%);',
+						pages: '/pages/chatWithAi/smartAi',
+						bgColor: 'linear-gradient(134deg, #FFC44A 0%, #F0A200 100%);',
+						bgImg: require("@/static/images/bag/second.png"),
 						isOpen: true,
 					},
 					{
 						title: '即兴发言',
 						desc: '梳理您的每个灵感',
-						bgColor: 'linear-gradient(135deg, #DC1876 0%, #FF238C 100%);',
+						pages: '/pages/chatWithAi/languageMode',
+						bgColor: 'linear-gradient(135deg, #FF7FF2 0%, #FF48E1 100%);',
+						bgImg: require("@/static/images/bag/third.png"),
 						isOpen: true,
 					},
 					{
 						title: '公文助手',
 						desc: '成就您的每个官方创意点',
+						pages: '/pages/chatWithAi/languageMode',
 						bgColor: 'linear-gradient(135deg, #FF4235 0%, #FFA835 100%);',
+						bgImg: require("@/static/images/bag/fourth.png"),
 						isOpen: true,
 					},
 					{
 						title: '实操指南',
 						desc: '帮你处理实际操作问题',
 						bgColor: 'linear-gradient(132deg, #B268F1 0%, #8B05FD 100%);',
+						bgImg: require("@/static/images/bag/fifth.png"),
 						isOpen: false,
 						tipsColor: '#FE9866'
 					},
 					{
 						title: '智能秘书',
 						desc: '帮您处理每日琐事',
-						bgColor: 'linear-gradient(134deg, #FF6161 0%, #FF1E1E 100%);',
+						bgColor: 'linear-gradient(134deg, #F4CC7B 0%, #FFAF0E 100%);',
+						bgImg: require("@/static/images/bag/sixth.png"),
 						isOpen: false,
 						tipsColor: '#B166F1'
 					},
@@ -63,7 +74,7 @@
 			// 点击跳转查看
 			goSearch(item) {
 				if (item.isOpen) {
-					this.$router.push('/pages/chatWithAi/smartAi')
+					this.$router.push(`${item.pages}`)
 				}
 			}
 		}
@@ -101,6 +112,14 @@
 		margin-bottom: 0;
 		border-radius: 8px;
 		background-color: antiquewhite;
+	}
+
+	.bgImage {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
 	}
 
 	.tips {
