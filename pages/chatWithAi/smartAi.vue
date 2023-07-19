@@ -65,8 +65,8 @@
 
 		</view>
 		<view class="chat_input">
-			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" auto-focus
-				:show-confirm-bar="false" :cursor-spacing="10" :fixed="true" :adjust-position="false"
+			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true"
+				:show-confirm-bar="false" :cursor-spacing="10" :fixed="true" :adjust-position="true"
 				placeholder="有什么想法💡呢！" :disabled="loading" />
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
@@ -164,22 +164,22 @@
 						body: JSON.stringify(data),
 						onmessage: (ev) => {
 							// content.value+=ev.data
-							console.log(ev, ' ========l')
 							this.handleScrollBottom();
 							const response_row = document.getElementById('print');
 							if (ev.event === "finish") {
 								this.loading = false;
-								console.log('finish', response_row.innerText, this.chatRecordList, '============')
 								const obj = {
 									role: 'assistant',
 									content: response_row.innerText,
 								}
 								this.$set(this.chatRecordList, this.chatRecordList.length - 1, obj)
 								this.$forceUpdate();
-								console.log('finish', this.chatRecordList, '=000000000000000000')
 							} else if (ev.event === "add") {
 								var content = ev.data;
 								response_row.innerText += content;
+								if (response_row.innerText.includes('ChatGLM')) {
+									response_row.innerText = response_row.innerText.replaceAll('ChatGLM', '北斗参谋')
+								}
 								console.log('add', response_row.innerText)
 							}
 						},
@@ -193,12 +193,10 @@
 				this.$nextTick(() => {
 					const scrollDom = document.getElementsByClassName('chat_content')[0];
 					this.animation(scrollDom, scrollDom.scrollHeight - scrollDom.offsetHeight);
-					console.log(scrollDom.scrollHeight, scrollDom.offsetHeight, '======')
 				});
 			},
 			//下拉动画
 			animation(obj, target, fn1) {
-				console.log(obj, target, '；；；；；；；；；；；；；；；；；；；；');
 				// fn是一个回调函数，在定时器结束的时候添加
 				// 每次开定时器之前先清除掉定时器
 				clearInterval(obj.timer);
