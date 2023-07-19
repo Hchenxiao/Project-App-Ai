@@ -53,22 +53,16 @@
 						<view class="chatAi-content" v-if="item.content"></view>
 						<view class="chatAi-print" id="print" v-else></view>
 						<view class="chatAi-operate" v-if="item.content && item.content.length">
-							<view class="operate-left">共生成200字 <uni-icons custom-prefix="iconfont" type="icon-zhongshi"
-									size="14"></uni-icons> 重新生成</view>
+							<view class="operate-left">共生成 {{computedWord(item.content)}}字 <uni-icons
+									custom-prefix="iconfont" type="icon-zhongshi" size="14"></uni-icons> 重新生成</view>
 							<view class="operate-right">
 								<uni-icons custom-prefix="iconfont" type="icon-fuzhi" size="14"></uni-icons>
 							</view>
 						</view>
 					</view>
-
 				</view>
-				<!-- 实时显示内容 -->
-				<!-- <view class="showCurrent"></view> -->
 			</view>
-			<view class="chatLoading" v-if="loading">
-				<view class="loadingIcon"></view>
-				生成中...
-			</view>
+
 		</view>
 		<view class="chat_input">
 			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" auto-focus
@@ -77,6 +71,10 @@
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
 			<view class="loadingIcon" v-else></view>
+		</view>
+		<view class="chatLoading" v-if="loading">
+			<view class="loadingIcon"></view>
+			生成中...
 		</view>
 	</view>
 </template>
@@ -104,6 +102,13 @@
 				3600
 			);
 		},
+		computed: {
+			computedWord() {
+				return (val) => {
+					return val.length
+				}
+			}
+		},
 		methods: {
 			// 用户发送信息
 			sendMessage() {
@@ -122,6 +127,7 @@
 				// 清空输入框
 				this.recordInput = '';
 				this.loading = true;
+				this.handleScrollBottom();
 			},
 			// 生成Token
 			generateJsonwebToken(apikey, expSeconds) {
@@ -185,13 +191,14 @@
 			},
 			handleScrollBottom() {
 				this.$nextTick(() => {
-					const scrollDom = this.$refs.chat_content;
+					const scrollDom = document.getElementsByClassName('chat_content')[0];
 					this.animation(scrollDom, scrollDom.scrollHeight - scrollDom.offsetHeight);
+					console.log(scrollDom.scrollHeight, scrollDom.offsetHeight, '======')
 				});
 			},
 			//下拉动画
 			animation(obj, target, fn1) {
-				console.log(fn1,'；；；；；；；；；；；；；；；；；；；；');
+				console.log(obj, target, '；；；；；；；；；；；；；；；；；；；；');
 				// fn是一个回调函数，在定时器结束的时候添加
 				// 每次开定时器之前先清除掉定时器
 				clearInterval(obj.timer);
@@ -217,8 +224,17 @@
 </script>
 
 <style>
+	.chatWrapper {
+		position: relative;
+	}
+
 	.chat_navBar {
 		background-color: #F6F7F9 !important;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 200;
+		width: 100%;
 	}
 
 	.uni-navbar__content,
@@ -254,10 +270,11 @@
 
 	.chat_content {
 		position: relative;
-		height: 100%;
+		height: 100vh;
 		padding-bottom: 85px;
 		overflow: auto;
 		background: #F6F7F9;
+		margin-top: 44px;
 	}
 
 	.chatLoading {
@@ -454,7 +471,6 @@
 
 	.user-content {
 		font-size: 16px;
-		font-family: PingFang-SC-Light, PingFang-SC;
 		font-weight: 300;
 		color: #333333;
 		line-height: 26px;
