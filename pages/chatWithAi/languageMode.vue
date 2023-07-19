@@ -9,7 +9,7 @@
 				</view>
 			</block>
 		</uni-nav-bar>
-		<view class="chat_content">
+		<view class="chat_content" ref="chat_content">
 			<view class="tipsCard" v-if="!chatRecordList.length">
 				<view class="tipsCard—avatar"></view>
 				<view class="tipsCard-tips">您好🙋！我是人工智能助手 北斗参谋，我能回答您所有问题，快来和我提问吧！</view>
@@ -42,17 +42,28 @@
 			<view class="chatRecordList" v-else>
 				<view class="chatRecordList_item" v-for="(item,index) in chatRecordList" :key="index">
 					<view class="user" v-if="item.role == 'user'">
-						<view class="user-avatar"></view>
+						<view class="user-avatar">
+							<uni-icons class="icons" custom-prefix="iconfont" type="icon-yonghu" style="color: #ffffff"
+								size="20"></uni-icons>
+						</view>
 						<view class="user-content">{{item.content}}</view>
 					</view>
 					<view class="chatAi" v-else>
 						<view class="chatAi-avatar"></view>
-						<view class="chatAi-content">{{item.content}}</view>
+						<view class="chatAi-content" v-if="item.content"></view>
+						<view class="chatAi-print" id="print" v-else></view>
+						<view class="chatAi-operate" v-if="item.content && item.content.length">
+							<view class="operate-left">共生成200字 <uni-icons custom-prefix="iconfont" type="icon-zhongshi"
+									size="14"></uni-icons> 重新生成</view>
+							<view class="operate-right">
+								<uni-icons custom-prefix="iconfont" type="icon-fuzhi" size="14"></uni-icons>
+							</view>
+						</view>
 					</view>
 
 				</view>
 				<!-- 实时显示内容 -->
-				<view class="showCurrent"></view>
+				<!-- <view class="showCurrent"></view> -->
 			</view>
 			<view class="chatLoading" v-if="loading">
 				<view class="loadingIcon"></view>
@@ -62,8 +73,10 @@
 		<view class="chat_input">
 			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" auto-focus
 				:show-confirm-bar="false" :cursor-spacing="10" :fixed="true" :adjust-position="false"
-				placeholder="有什么想法💡呢！" />
-			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" @click="sendMessage"></uni-icons>
+				placeholder="有什么想法💡呢！" :disabled="loading" />
+			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
+				@click="sendMessage"></uni-icons>
+			<view class="loadingIcon" v-else></view>
 		</view>
 	</view>
 </template>
@@ -82,13 +95,7 @@
 				// loading加载中
 				loading: false,
 				// 聊天记录
-				chatRecordList: [{
-					role: 'user',
-					content: '您好!'
-				}, {
-					role: 'assistant',
-					content: '您好，我是 北斗参谋！您的智能助手！'
-				}],
+				chatRecordList: [],
 			}
 		},
 		created() {
@@ -96,17 +103,25 @@
 				"da5fddb1da10215d1ea05ad39daad05f.uVfpOBxqq2iCqqcQ",
 				3600
 			);
-			// this.createSSE(this.token, {
-			// 	prompt: [{
-			// 		role: "user",
-			// 		content: "你好"
-			// 	}],
-			// });
 		},
 		methods: {
 			// 用户发送信息
 			sendMessage() {
-
+				if (!this.recordInput) return
+				this.chatRecordList.push({
+					role: 'user',
+					content: this.recordInput,
+				});
+				this.createSSE(this.token, {
+					prompt: this.chatRecordList,
+				});
+				this.chatRecordList.push({
+					role: 'assistant',
+					content: '',
+				})
+				// 清空输入框
+				this.recordInput = '';
+				this.loading = true;
 			},
 			// 生成Token
 			generateJsonwebToken(apikey, expSeconds) {
@@ -134,7 +149,7 @@
 			// 创建SSE
 			createSSE(token, data) {
 				fetchEventSource(
-					"https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_std/sse-invoke", {
+					"https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_pro_test/sse-invoke", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -143,15 +158,23 @@
 						body: JSON.stringify(data),
 						onmessage: (ev) => {
 							// content.value+=ev.data
-							const response_row = document.getElementById("response_row");
+							console.log(ev, ' ========l')
+							this.handleScrollBottom();
+							const response_row = document.getElementById('print');
 							if (ev.event === "finish") {
-								this.dataList.push({
-									role: "assistant",
+								this.loading = false;
+								console.log('finish', response_row.innerText, this.chatRecordList, '============')
+								const obj = {
+									role: 'assistant',
 									content: response_row.innerText,
-								});
-							} else {
+								}
+								this.$set(this.chatRecordList, this.chatRecordList.length - 1, obj)
+								this.$forceUpdate();
+								console.log('finish', this.chatRecordList, '=000000000000000000')
+							} else if (ev.event === "add") {
 								var content = ev.data;
 								response_row.innerText += content;
+								console.log('add', response_row.innerText)
 							}
 						},
 						onerror(ev) {
@@ -160,6 +183,35 @@
 					}
 				);
 			},
+			handleScrollBottom() {
+				this.$nextTick(() => {
+					const scrollDom = this.$refs.chat_content;
+					this.animation(scrollDom, scrollDom.scrollHeight - scrollDom.offsetHeight);
+				});
+			},
+			//下拉动画
+			animation(obj, target, fn1) {
+				console.log(fn1,'；；；；；；；；；；；；；；；；；；；；');
+				// fn是一个回调函数，在定时器结束的时候添加
+				// 每次开定时器之前先清除掉定时器
+				clearInterval(obj.timer);
+				obj.timer = setInterval(function() {
+					// 步长计算公式  越来越小
+					// 步长取整
+					var step = (target - obj.scrollTop) / 10;
+					step = step > 0 ? Math.ceil(step) : Math.floor(step);
+					if (obj.scrollTop >= target) {
+						clearInterval(obj.timer);
+						// 如果fn1存在，调用fn
+						if (fn1) {
+							fn1();
+						}
+					} else {
+						// 每30毫秒就将新的值给obj.left
+						obj.scrollTop = obj.scrollTop + step;
+					}
+				}, 10);
+			},
 		}
 	}
 </script>
@@ -167,14 +219,6 @@
 <style>
 	.chat_navBar {
 		background-color: #F6F7F9 !important;
-	}
-
-	.showCurrent:after {
-		-webkit-animation: blink 1s steps(5, start) infinite;
-		animation: blink 1s steps(5, start) infinite;
-		content: "▋";
-		margin-left: 0.25rem;
-		vertical-align: baseline;
 	}
 
 	.uni-navbar__content,
@@ -210,7 +254,8 @@
 
 	.chat_content {
 		position: relative;
-		height: 100vh;
+		height: 100%;
+		padding-bottom: 85px;
 		overflow: auto;
 		background: #F6F7F9;
 	}
@@ -380,25 +425,28 @@
 	.chatRecordList {
 		width: 88.4%;
 		margin: 0 auto;
+		margin-top: 24px;
 	}
 
 	.user {
 		width: 100%;
 		min-height: 58px;
 		padding: 16px;
-		background: #FFFFFF;
+		background: rgba(255, 255, 255, 0.3);
 		box-shadow: 0px 2px 10px 0px rgba(196, 3, 17, 0.08);
 		border-radius: 8px;
-		opacity: 0.3;
 		display: flex;
 		flex-direction: row-reverse;
 		align-items: center;
+		margin-bottom: 24px;
 	}
 
 	.user-avatar {
 		width: 32px;
+		line-height: 32px;
 		min-width: 32px;
 		height: 32px;
+		text-align: center;
 		background: #C40311;
 		border-radius: 50%;
 		margin-left: 10px;
@@ -410,5 +458,64 @@
 		font-weight: 300;
 		color: #333333;
 		line-height: 26px;
+	}
+
+	.chatAi {
+		width: 100%;
+		padding: 16px;
+		min-height: 58px;
+		background: #FFFFFF;
+		box-shadow: 0px 2px 10px 0px rgba(196, 3, 17, 0.08);
+		border-radius: 16px;
+		margin-bottom: 24px;
+	}
+
+	.chatAi-avatar {
+		width: 32px;
+		line-height: 32px;
+		min-width: 32px;
+		height: 32px;
+		text-align: center;
+		background: #C40311;
+		border-radius: 50%;
+	}
+
+	.chatAi-content,
+	.chatAi-print {
+		padding: 16px 0;
+		font-size: 16px;
+		font-weight: 300;
+		color: #333333;
+		line-height: 26px;
+		border-bottom: 1px solid rgba(51, 51, 51, 0.1);
+	}
+
+	.chatAi-operate {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding-top: 16px;
+	}
+
+	.operate-left {
+		opacity: 0.3;
+		font-size: 12px;
+		font-weight: 400;
+		color: #333333;
+		line-height: 17px;
+	}
+
+	.icon-zhongshi {
+		margin-left: 30px;
+		margin-right: 4px;
+	}
+
+	.chatAi-print:after {
+		-webkit-animation: blink 1s steps(5, start) infinite;
+		animation: blink 1s steps(5, start) infinite;
+		content: "▋";
+		margin-left: 0.25rem;
+		vertical-align: baseline;
 	}
 </style>

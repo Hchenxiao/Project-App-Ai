@@ -20,6 +20,18 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+.icon-zhongshi:before {
+  content: "\e630";
+}
+
+.icon-fuzhi:before {
+  content: "\e628";
+}
+
+.icon-yonghu:before {
+  content: "\e611";
+}
+
 .icon-document:before {
   content: "\e631";
 }
