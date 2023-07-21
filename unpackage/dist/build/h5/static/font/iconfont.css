@@ -12,8 +12,12 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.icon-qingchu:before {
-  content: "\e6c7";
+.iconfont {
+	font-family: "iconfont" !important;
+	font-size: 16px;
+	font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .icon-zhongshi:before {

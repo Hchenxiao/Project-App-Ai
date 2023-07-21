@@ -97,7 +97,7 @@
 	}
 
 	.uni-col {
-		height: 12.4vh;
+		height: 14vh;
 		margin-bottom: 20px;
 	}
 

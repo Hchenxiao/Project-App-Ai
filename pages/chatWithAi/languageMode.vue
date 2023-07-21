@@ -4,10 +4,13 @@
 			<view class="title">北斗参谋</view>
 			<block slot="right">
 				<view class="city">
-					<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-icoqingchuhuancun"
-						size="25"></uni-icons>
+					<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-qingchu" size="25"></uni-icons>
 				</view>
 			</block>
+			<view class="chatLoading" v-if="loading">
+				<view class="loadingIcon"></view>
+				生成中...
+			</view>
 		</uni-nav-bar>
 		<view class="chat_content" ref="chat_content">
 			<view class="tipsCard" v-if="!chatRecordList.length">
@@ -71,10 +74,6 @@
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
 			<view class="loadingIcon" v-else></view>
-		</view>
-		<view class="chatLoading" v-if="loading">
-			<view class="loadingIcon"></view>
-			生成中...
 		</view>
 	</view>
 </template>
@@ -280,13 +279,14 @@
 		box-shadow: 0px 2px 10px 0px rgba(196, 3, 17, 0.08);
 		border-radius: 10px;
 		position: absolute;
-		top: 0;
+		top: 44px;
 		right: 50%;
 		transform: translateX(50%);
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
+		z-index: 2000;
 	}
 
 	.loadingIcon {
