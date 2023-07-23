@@ -21,7 +21,7 @@
 				dataList: [{
 						title: '智能问答',
 						desc: '满足您的每个好奇',
-						pages: '/pages/chatWithAi/smartAi',
+						pages: '/pages/chatWithAi/languageMode',
 						bgColor: 'linear-gradient(134deg, #F9636E 0%, #E42533 100%);',
 						bgImg: require("@/static/images/bag/first.png"),
 						isOpen: true,
@@ -29,7 +29,7 @@
 					{
 						title: '智慧百科',
 						desc: '解答您的每个疑惑点',
-						pages: '/pages/chatWithAi/smartAi',
+						pages: '/pages/chatWithAi/languageMode',
 						bgColor: 'linear-gradient(134deg, #FFC44A 0%, #F0A200 100%);',
 						bgImg: require("@/static/images/bag/second.png"),
 						isOpen: true,

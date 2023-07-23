@@ -71,7 +71,7 @@
 		</view>
 		<view class="chat_input">
 			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true"
-				:show-confirm-bar="false" :cursor-spacing="10" :fixed="true" :adjust-position="true"
+				:show-confirm-bar="false" :cursor-spacing="20" :fixed="true" :adjust-position="false"
 				placeholder="有什么想法💡呢！" :disabled="loading" />
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
@@ -425,8 +425,11 @@
 	}
 
 	.textarea {
-		width: 86%;
-		padding: 10px 8px;
+		position: fixed;
+		bottom: 10px;
+		left: 10px;
+		width: 88%;
+		padding: 10px 14px;
 		min-height: 23px;
 		max-height: 200px;
 		overflow-y: auto;
@@ -534,5 +537,8 @@
 		content: "▋";
 		margin-left: 0.25rem;
 		vertical-align: baseline;
+	}
+	.loading_input {
+		margin-right: 0;
 	}
 </style>

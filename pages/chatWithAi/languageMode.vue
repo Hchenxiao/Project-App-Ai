@@ -4,7 +4,8 @@
 			<view class="title">北斗参谋</view>
 			<block slot="right">
 				<view class="city">
-					<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-qingchu" size="25"></uni-icons>
+					<uni-icons class="qingchu" custom-prefix="iconfont" type="icon-qingchu" size="25"
+						@click="clearChatRecord"></uni-icons>
 				</view>
 			</block>
 			<view class="chatLoading" v-if="loading">
@@ -28,17 +29,13 @@
 					</view>
 				</view>
 				<view class="example_content">
-					<view class="example_item">
-						<uni-icons class="icons" custom-prefix="iconfont" type="icon-yiwen" style="color: #C40311"
+					<view class="example_item" v-for="(item,index) in contentTemplate" :key="index">
+						<uni-icons class="icons" custom-prefix="iconfont" :type="item.icon" style="color: #C40311"
 							size="25"></uni-icons>
-						<view class="example_item_title">即兴发言：</view>
-						<view class="example_item_content">我是一名学生，要演讲的主题是我的老师，要求字数500字以上，内…</view>
-					</view>
-					<view class="example_item">
-						<uni-icons class="icons" custom-prefix="iconfont" type="icon-document" style="color: #C40311"
-							size="25"></uni-icons>
-						<view class="example_item_title">公文助手：</view>
-						<view class="example_item_content">我是一名学生，要演讲的主题是我的老师，要求字数500字以上，内…</view>
+						<view class="example_item_title">{{item.title}}：</view>
+						<view class="example_item_content" @click="clickToSearch(item)">
+							{{item.content}}
+						</view>
 					</view>
 				</view>
 			</view>
@@ -53,13 +50,14 @@
 					</view>
 					<view class="chatAi" v-else>
 						<view class="chatAi-avatar"></view>
-						<view class="chatAi-content" v-if="item.content"></view>
+						<view class="chatAi-content" v-if="item.content" ></view>
 						<view class="chatAi-print" id="print" v-else></view>
 						<view class="chatAi-operate" v-if="item.content && item.content.length">
 							<view class="operate-left">共生成 {{computedWord(item.content)}}字 <uni-icons
 									custom-prefix="iconfont" type="icon-zhongshi" size="14"></uni-icons> 重新生成</view>
 							<view class="operate-right">
-								<uni-icons custom-prefix="iconfont" type="icon-fuzhi" size="14"></uni-icons>
+								<uni-icons custom-prefix="iconfont" type="icon-fuzhi" size="14"
+									@click="copyContent(item.content)"></uni-icons>
 							</view>
 						</view>
 					</view>
@@ -67,13 +65,12 @@
 			</view>
 
 		</view>
-		<view class="chat_input">
-			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" auto-focus
-				:show-confirm-bar="false" :cursor-spacing="10" :fixed="true" :adjust-position="false"
-				placeholder="有什么想法💡呢！" :disabled="loading" />
+		<view class="chat_input" :style="'bottom:'+KeyboardHeight+'px;'">
+			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" :cursor-spacing="20"
+				:fixed="true" :adjust-position="false" placeholder="有什么想法💡呢！" :disabled="loading" />
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
-			<view class="loadingIcon" v-else></view>
+			<view class="loadingIcon loading_input" v-else></view>
 		</view>
 	</view>
 </template>
@@ -82,7 +79,11 @@
 	import {
 		fetchEventSource
 	} from "@microsoft/fetch-event-source";
+	import MarkdownItVue from 'markdown-it-vue'
 	export default {
+		components: {
+			MarkdownItVue
+		},
 		data() {
 			return {
 				// 生成 token
@@ -93,6 +94,18 @@
 				loading: false,
 				// 聊天记录
 				chatRecordList: [],
+				// 输入框高度
+				KeyboardHeight: 10,
+				// 模版
+				contentTemplate: [{
+					icon: 'icon-yiwen',
+					title: '即兴发言',
+					content: '我是一名学生，要演讲的主题是我的老师，要求字数500字以上。要求：1.简短的自我介绍，高二三班的 刘洋 2. 内容要求：富含感情的陈述，表达我于老师之间的亲切的感情。'
+				}, {
+					icon: 'icon-document',
+					title: '公文助手',
+					content: '请模拟公务员发布一则严肃的通知，主体为内部徇私舞弊名单...'
+				}]
 			}
 		},
 		created() {
@@ -100,6 +113,10 @@
 				"da5fddb1da10215d1ea05ad39daad05f.uVfpOBxqq2iCqqcQ",
 				3600
 			);
+			uni.onKeyboardHeightChange(res => {
+				console.log('log', res);
+				this.KeyboardHeight = res.height + 20
+			})
 		},
 		computed: {
 			computedWord() {
@@ -109,6 +126,26 @@
 			}
 		},
 		methods: {
+			// 点击模版查询
+			clickToSearch(item) {
+				this.recordInput = item.content;
+			},
+			// 清除聊天记录
+			clearChatRecord() {
+				this.chatRecordList = [];
+			},
+			// 复制输入内容
+			copyContent(val) {
+				uni.setClipboardData({
+					data: val,
+					success: function() {
+						console.log('成功设置剪贴板数据');
+					},
+					fail: function(err) {
+						console.log('设置剪贴板数据失败，错误信息：' + err);
+					}
+				});
+			},
 			// 用户发送信息
 			sendMessage() {
 				if (!this.recordInput) return
@@ -269,7 +306,7 @@
 		padding-bottom: 85px;
 		overflow: auto;
 		background: #F6F7F9;
-		margin-top: 44px;
+		margin-top: 45px;
 	}
 
 	.chatLoading {
@@ -422,8 +459,8 @@
 	}
 
 	.textarea {
-		width: 86%;
-		padding: 10px 8px;
+		width: 88%;
+		padding: 10px 14px;
 		min-height: 23px;
 		max-height: 200px;
 		overflow-y: auto;
@@ -529,5 +566,9 @@
 		content: "▋";
 		margin-left: 0.25rem;
 		vertical-align: baseline;
+	}
+
+	.loading_input {
+		margin-right: 0;
 	}
 </style>
