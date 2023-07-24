@@ -46,11 +46,11 @@
 							<uni-icons class="icons" custom-prefix="iconfont" type="icon-yonghu" style="color: #ffffff"
 								size="20"></uni-icons>
 						</view>
-						<view class="user-content" v-html="item.content.replace(/\r?\n/g, '<br />')"></view>
+						<view class="user-content">{{item.content}}</view>
 					</view>
 					<view class="chatAi" v-else>
 						<view class="chatAi-avatar"></view>
-						<view class="chatAi-content" v-if="item.content"></view>
+						<view class="chatAi-content" v-if="item.content" ></view>
 						<view class="chatAi-print" id="print" v-else></view>
 						<view class="chatAi-operate" v-if="item.content && item.content.length">
 							<view class="operate-left">共生成 {{computedWord(item.content)}}字 <uni-icons
@@ -65,11 +65,9 @@
 			</view>
 
 		</view>
-		<view class="chat_input">
-			<textarea class="textarea" v-if="!compontentId" v-model="recordInput" :maxlength="-1" :auto-height="true"
-				:cursor-spacing="10" :fixed="true" :adjust-position="false" placeholder="有什么想法💡呢！"
-				:disabled="loading" />
-			<component class="showTemplate" v-else :is="compontentId" @change="changeInput" @close="compontentId = ''"></component>
+		<view class="chat_input" :style="'bottom:'+KeyboardHeight+'px;'">
+			<textarea class="textarea" v-model="recordInput" :maxlength="-1" :auto-height="true" :cursor-spacing="20"
+				:fixed="true" :adjust-position="false" placeholder="有什么想法💡呢！" :disabled="loading" />
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
 			<view class="loadingIcon loading_input" v-else></view>
@@ -81,12 +79,10 @@
 	import {
 		fetchEventSource
 	} from "@microsoft/fetch-event-source";
-	import MarkdownItVue from 'markdown-it-vue';
-	import speechTemplate from '../template/speechTemplate.vue'
+	import MarkdownItVue from 'markdown-it-vue'
 	export default {
 		components: {
-			MarkdownItVue,
-			speechTemplate,
+			MarkdownItVue
 		},
 		data() {
 			return {
@@ -104,16 +100,12 @@
 				contentTemplate: [{
 					icon: 'icon-yiwen',
 					title: '即兴发言',
-					content: '我是一名学生，要演讲的主题是我的老师，要求字数500字以上。要求：1.简短的自我介绍，高二三班的 刘洋 2. 内容要求：富含感情的陈述，表达我于老师之间的亲切的感情。',
-					component: 'speechTemplate'
+					content: '我是一名学生，要演讲的主题是我的老师，要求字数500字以上。要求：1.简短的自我介绍，高二三班的 刘洋 2. 内容要求：富含感情的陈述，表达我于老师之间的亲切的感情。'
 				}, {
 					icon: 'icon-document',
 					title: '公文助手',
-					content: '请模拟公务员发布一则严肃的通知，主体为内部徇私舞弊名单...',
-					component: 'speechTemplate'
-				}],
-				// 模版ID
-				compontentId: ''
+					content: '请模拟公务员发布一则严肃的通知，主体为内部徇私舞弊名单...'
+				}]
 			}
 		},
 		created() {
@@ -137,11 +129,6 @@
 			// 点击模版查询
 			clickToSearch(item) {
 				this.recordInput = item.content;
-				this.compontentId = item.component
-			},
-			// 修改编辑模版
-			changeInput(val){
-			  this.recordInput = val;	
 			},
 			// 清除聊天记录
 			clearChatRecord() {
@@ -162,7 +149,6 @@
 			// 用户发送信息
 			sendMessage() {
 				if (!this.recordInput) return
-				this.compontentId = "";
 				this.chatRecordList.push({
 					role: 'user',
 					content: this.recordInput,
@@ -480,13 +466,6 @@
 		overflow-y: auto;
 		border-radius: 10px;
 		background-color: #FFFFFF;
-	}
-
-	.showTemplate {
-		width: 88%;
-		padding: 10px 14px;
-		background: #FFFFFF;
-		border-radius: 10px;
 	}
 
 	.uni-textarea-placeholder {

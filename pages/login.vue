@@ -1,6 +1,5 @@
 <template>
 	<view class="normal-login-container">
-		qidongyemian
 	</view>
 </template>
 
@@ -16,7 +15,7 @@
 		onLoad() {
 			setTimeout(() => {
 				this.$router.push("/pages/index")
-			}, 100)
+			}, 3000)
 		},
 		created() {
 
@@ -34,6 +33,9 @@
 
 	.normal-login-container {
 		width: 100%;
+		height: 100%;
+		background: url('../static/images/index.png') no-repeat center;
+		background-size: 100% 100%;
 
 		.logo-content {
 			width: 100%;

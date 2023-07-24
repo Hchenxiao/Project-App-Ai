@@ -2,7 +2,8 @@
 	"pages": [{
 			"path": "pages/login",
 			"style": {
-				"navigationBarTitleText": "北斗参谋"
+				"navigationBarTitleText": "北斗参谋",
+				"navigationStyle": "custom"
 			}
 		}, {
 			"path": "pages/index",
