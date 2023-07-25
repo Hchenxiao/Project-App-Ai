@@ -169,6 +169,7 @@
 				});
 				this.createSSE(this.token, {
 					prompt: this.chatRecordList,
+					incremental: false,
 				});
 				this.chatRecordList.push({
 					role: 'assistant',
@@ -224,8 +225,9 @@
 								}
 								this.$set(this.chatRecordList, this.chatRecordList.length - 1, obj)
 							} else if (ev.event === "add") {
+								// console.log(ev,'===')
 								var content = ev.data;
-								response_row.innerText += content;
+								response_row.innerText = content;
 								if (response_row.innerText.includes('ChatGLM')) {
 									response_row.innerText = response_row.innerText.replaceAll('ChatGLM', '北斗参谋')
 								}
