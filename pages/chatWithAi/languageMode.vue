@@ -21,7 +21,7 @@
 					<view class="left">
 						试一试以下列子
 					</view>
-					<view class="right">
+					<view class="right" @click="checkOutQuestion">
 						<uni-icons custom-prefix="iconfont" type="icon-qiehuan" size="20"></uni-icons>
 						<view class="text">
 							换一换
@@ -29,11 +29,12 @@
 					</view>
 				</view>
 				<view class="example_content">
-					<view class="example_item" v-for="(item,index) in contentTemplate" :key="index">
+					<view class="example_item" v-for="(item,index) in contentTemplate" :key="index" v-if="index <= 1"
+						@click="clickToSearch(item)">
 						<uni-icons class="icons" custom-prefix="iconfont" :type="item.icon" style="color: #C40311"
 							size="25"></uni-icons>
 						<view class="example_item_title">{{item.title}}：</view>
-						<view class="example_item_content" @click="clickToSearch(item)">
+						<view class="example_item_content">
 							{{item.content}}
 						</view>
 					</view>
@@ -41,20 +42,22 @@
 			</view>
 			<view class="chatRecordList" v-else>
 				<view class="chatRecordList_item" v-for="(item,index) in chatRecordList" :key="index">
-					<view class="user" v-if="item.role == 'user'">
+					<view class="user" v-if="item.role == 'user' && !item.retry">
 						<view class="user-avatar">
 							<uni-icons class="icons" custom-prefix="iconfont" type="icon-yonghu" style="color: #ffffff"
 								size="20"></uni-icons>
 						</view>
 						<view class="user-content" v-html="item.content.replace(/\r?\n/g, '<br />')"></view>
 					</view>
-					<view class="chatAi" v-else>
+					<view class="chatAi" v-if="item.role == 'assistant'">
 						<view class="chatAi-avatar"></view>
 						<view class="chatAi-content" v-if="item.content"></view>
 						<view class="chatAi-print" id="print" v-else></view>
 						<view class="chatAi-operate" v-if="item.content && item.content.length">
-							<view class="operate-left">共生成 {{computedWord(item.content)}}字 <uni-icons
-									custom-prefix="iconfont" type="icon-zhongshi" size="14"></uni-icons> 重新生成</view>
+							<view class="operate-left">共生成 {{computedWord(item.content)}}字
+								<view @click="retryTo(item,index)"> <uni-icons custom-prefix="iconfont"
+										type="icon-zhongshi" size="14"></uni-icons> 重新生成</view>
+							</view>
 							<view class="operate-right">
 								<uni-icons custom-prefix="iconfont" type="icon-fuzhi" size="14"
 									@click="copyContent(item.content)"></uni-icons>
@@ -69,11 +72,16 @@
 			<textarea class="textarea" v-if="!compontentId" v-model="recordInput" :maxlength="-1" :auto-height="true"
 				:cursor-spacing="10" :fixed="true" :adjust-position="false" placeholder="有什么想法💡呢！"
 				:disabled="loading" />
-			<component class="showTemplate" v-else :is="compontentId" @change="changeInput" @close="compontentId = ''"></component>
+			<component class="showTemplate" v-else :is="compontentId" @change="changeInput" @close="compontentId = ''">
+			</component>
 			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
 				@click="sendMessage"></uni-icons>
 			<view class="loadingIcon loading_input" v-else></view>
 		</view>
+
+		<uni-popup ref="message" type="message" style="z-index: 2100;">
+			<uni-popup-message :type="msgType" :message="messageText" :duration="3000"></uni-popup-message>
+		</uni-popup>
 	</view>
 </template>
 
@@ -82,7 +90,10 @@
 		fetchEventSource
 	} from "@microsoft/fetch-event-source";
 	import MarkdownItVue from 'markdown-it-vue';
-	import speechTemplate from '../template/speechTemplate.vue'
+	import speechTemplate from '../template/speechTemplate.vue';
+	import {
+		shuffle
+	} from 'lodash';
 	export default {
 		components: {
 			MarkdownItVue,
@@ -100,6 +111,11 @@
 				chatRecordList: [],
 				// 输入框高度
 				KeyboardHeight: 10,
+				// 模版ID
+				compontentId: '',
+				// 消息提示
+				msgType: '',
+				messageText: '',
 				// 模版
 				contentTemplate: [{
 					icon: 'icon-yiwen',
@@ -110,10 +126,15 @@
 					icon: 'icon-document',
 					title: '公文助手',
 					content: '请模拟公务员发布一则严肃的通知，主体为内部徇私舞弊名单...',
-					component: 'speechTemplate'
+				}, {
+					icon: 'icon-yiwen',
+					title: '智慧百科',
+					content: '什么是北斗七星，北斗七星的作用是什么？',
+				}, {
+					icon: 'icon-yiwen',
+					title: '智慧百科',
+					content: '国内比较著名的chatgtp有哪些？',
 				}],
-				// 模版ID
-				compontentId: ''
 			}
 		},
 		created() {
@@ -139,9 +160,32 @@
 				this.recordInput = item.content;
 				this.compontentId = item.component
 			},
+			// 换一换问题
+			checkOutQuestion() {
+				this.contentTemplate = shuffle(this.contentTemplate);
+			},
+			// 重新生成
+			retryTo(item, index) {
+				if (this.loading) return
+				this.chatRecordList.push({
+					role: 'user',
+					content: this.chatRecordList[index - 1] ? this.chatRecordList[index - 1].content : '',
+					retry: true
+				});
+				this.createSSE(this.token, {
+					prompt: this.chatRecordList,
+					incremental: false,
+				});
+				this.chatRecordList.push({
+					role: 'assistant',
+					content: '',
+				})
+				this.loading = true;
+				this.handleScrollBottom();
+			},
 			// 修改编辑模版
-			changeInput(val){
-			  this.recordInput = val;	
+			changeInput(val) {
+				this.recordInput = val;
 			},
 			// 清除聊天记录
 			clearChatRecord() {
@@ -233,8 +277,11 @@
 								}
 							}
 						},
-						onerror(ev) {
+						onerror: (ev) => {
 							console.log(ev, "连接失败，请重试！");
+							this.msgType = 'error'
+							this.messageText = `网络开小差，请重试！`
+							this.$refs.message.open()
 						},
 					}
 				);
@@ -571,6 +618,7 @@
 	}
 
 	.operate-left {
+		display: flex;
 		opacity: 0.3;
 		font-size: 12px;
 		font-weight: 400;
