@@ -19,7 +19,7 @@
 				<view class="tipsCard-tips">您好🙋！我是人工智能助手 北斗参谋，我能回答您所有问题，快来和我提问吧！</view>
 				<view class="tipsCard-title">
 					<view class="left">
-						试一试以下列子
+						试一试以下例子
 					</view>
 					<view class="right" @click="checkOutQuestion">
 						<uni-icons custom-prefix="iconfont" type="icon-qiehuan" size="20"></uni-icons>
@@ -74,8 +74,13 @@
 				:disabled="loading" />
 			<component class="showTemplate" v-else :is="compontentId" @change="changeInput" @close="compontentId = ''">
 			</component>
-			<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" v-if="!loading"
+			<view class="chatOperate" v-if="!loading">
+				<uni-icons custom-prefix="iconfont" type="icon-guanbi" size="30" v-if="compontentId"
+				@click="clearContent"></uni-icons>
+				<uni-icons custom-prefix="iconfont" type="icon-fasong" size="30" 
 				@click="sendMessage"></uni-icons>
+			</view>
+			
 			<view class="loadingIcon loading_input" v-else></view>
 		</view>
 
@@ -190,6 +195,11 @@
 			// 清除聊天记录
 			clearChatRecord() {
 				this.chatRecordList = [];
+			},
+			// 清除内容
+			clearContent(){
+				this.compontentId = '';
+				this.recordInput = '';
 			},
 			// 复制输入内容
 			copyContent(val) {
@@ -477,7 +487,7 @@
 		font-size: 16px;
 		font-weight: 300;
 		color: #333333;
-		line-height: 30px;
+		line-height: 31px;
 		vertical-align: bottom;
 		overflow: hidden; //溢出隐藏
 		text-overflow: ellipsis; //省略号
@@ -508,7 +518,7 @@
 		bottom: 0;
 		left: 0;
 		width: 100%;
-		padding: 13px 16px;
+		padding: 13px 16px 0 18px;
 		/* height: 64px; */
 		background: #F0F1F7;
 		display: flex;
@@ -641,5 +651,12 @@
 
 	.loading_input {
 		margin-right: 0;
+	}
+	.chatOperate {
+		margin-left: 10px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
 	}
 </style>

@@ -126,7 +126,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		padding: 0 8px;
+		padding: 2px 8px;
 		color: #ffffff;
 		font-size: 12px;
 		border-radius: 11px 8px 0px 11px;

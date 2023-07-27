@@ -1,5 +1,8 @@
 <template>
 	<view class="normal-login-container">
+		<view class="bg" @click="toIndex"></view>
+		<view class="logo" @click="toIndex"></view>
+		<view class="logoText" @click="toIndex"></view>
 	</view>
 </template>
 
@@ -10,18 +13,34 @@
 
 	export default {
 		data() {
-			return {}
+			return {
+				timer: null
+			}
 		},
-		onLoad() {
-			setTimeout(() => {
+		// onLoad() {
+		// 	this.timer = setTimeout(() => {
+		// 		this.$router.push("/pages/index")
+		// 	}, 3000)
+		// },
+		onShow() {
+			this.timer = setTimeout(() => {
 				this.$router.push("/pages/index")
 			}, 3000)
+		},
+		onHide() {
+			window.clearTimeout(this.timer)
+			this.timer = null
 		},
 		created() {
 
 		},
 		methods: {
+			toIndex() {
+				window.clearTimeout(this.timer)
+				this.timer = null
+				this.$router.push("/pages/index")
 
+			}
 		}
 	}
 </script>
@@ -34,73 +53,33 @@
 	.normal-login-container {
 		width: 100%;
 		height: 100%;
-		background: url('../static/images/index.png') no-repeat center;
-		background-size: 100% 100%;
+		display: flex;
+		flex-direction: column;
+		justify-self: center;
+		align-items: center;
 
-		.logo-content {
+		// background: url('../static/images/index.png') no-repeat center;
+		// background-size: 100% 100%;
+		.bg {
+			height: 77%;
 			width: 100%;
-			font-size: 21px;
-			text-align: center;
-			padding-top: 15%;
-
-			image {
-				border-radius: 4px;
-			}
-
-			.title {
-				margin-left: 10px;
-			}
+			background: url('../static/bdqx.png') no-repeat center;
+			background-size: 100% 100%;
 		}
 
-		.login-form-content {
-			text-align: center;
-			margin: 20px auto;
-			margin-top: 15%;
-			width: 80%;
+		.logo {
+			width: 74px;
+			height: 74px;
+			margin-bottom: 16px;
+			background: url('../static/logo.png') no-repeat center;
+			background-size: 100% 100%;
+		}
 
-			.input-item {
-				margin: 20px auto;
-				background-color: #f5f6f7;
-				height: 45px;
-				border-radius: 20px;
-
-				.icon {
-					font-size: 38rpx;
-					margin-left: 10px;
-					color: #999;
-				}
-
-				.input {
-					width: 100%;
-					font-size: 14px;
-					line-height: 20px;
-					text-align: left;
-					padding-left: 15px;
-				}
-
-			}
-
-			.login-btn {
-				margin-top: 40px;
-				height: 45px;
-			}
-
-			.xieyi {
-				color: #333;
-				margin-top: 20px;
-			}
-
-			.login-code {
-				height: 38px;
-				float: right;
-
-				.login-code-img {
-					height: 38px;
-					position: absolute;
-					margin-left: 10px;
-					width: 200rpx;
-				}
-			}
+		.logoText {
+			width: 200px;
+			height: 40px;
+			background: url('../static/bdtext.png') no-repeat center;
+			background-size: 100% 100%;
 		}
 	}
 </style>
